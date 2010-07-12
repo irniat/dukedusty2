@@ -1,0 +1,7 @@
+BUS=="usb", KERNEL=="ttyUSB*", SYSFS{idVendor}=="050d", SYSFS{idProduct}=="0109", SYSFS{serial}=="994893", SYMLINK+="robot/roomba"
+
+BUS=="usb", KERNEL=="ttyUSB*", SYSFS{idVendor}=="0403", SYSFS{idProduct}=="6001", SYSFS{serial}=="A6003StD", SYMLINK+="robot/rfidreader"
+
+BUS=="usb", KERNEL=="video*", SYSFS{idVendor}=="046d", SYSFS{idProduct}=="0990", SYMLINK+="robot/camera"
+
+BUS=="usb", KERNEL=="ttyACM*", SYSFS{idVendor}=="15d1", SYSFS{idProduct}=="0000", SYMLINK+="robot/laser"

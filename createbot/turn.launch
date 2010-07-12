@@ -1,0 +1,18 @@
+<launch>
+    <!--
+    <param name="irobot_create_rustic/serial_port" value="/dev/robot/roomba"/>
+    <node pkg="irobot_create_rustic" type="driver" output="screen" name="base_link">
+        <param name="freq" value="10"/>
+    </node>
+    !-->
+    
+    <param name="/brown/irobot_create_2_1/port" value="/dev/robot/roomba"/>
+    <node pkg="irobot_create_2_1" type="driver.py" name="base_link" output="screen"/>
+
+    <node pkg="createbot" type="turn" name="roomba" args="0 0.05 1"/>
+    
+    <!--
+    <node pkg="createbot" type="controlAndOdometer" name="controlAndOdometer" args="odom base_link 0"/>
+    !-->
+
+</launch>
