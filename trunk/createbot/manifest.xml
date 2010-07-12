@@ -1,0 +1,27 @@
+<package>
+  <description brief="createbot">
+
+     createbot
+
+  </description>
+  <author>Reynolds Lab</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/createbot</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="hokuyo_node"/>
+  <depend package="tf"/>
+  <depend package="irobot_create_rustic"/>
+  <depend package="irobot_create_2_1"/>
+  <depend package="hrl_rfid"/>
+  <depend package="nav_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="sensor_msgs"/>
+  <depend package="amcl"/>
+  <depend package="move_base"/>
+  
+</package>
+
+

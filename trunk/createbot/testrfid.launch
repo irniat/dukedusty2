@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="createbot" name="rfidReaderNode" type="my_rfid.py" output="screen" respawn="true"/>
+    <node pkg="createbot" name="rfidPrinter" type="printRFIDTags" output="screen"/>
+</launch>
