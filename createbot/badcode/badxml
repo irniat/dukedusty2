@@ -1,0 +1,5 @@
+    <node pkg = "localization_cu" type = "localization_cu" name = "localization_cu" args=""/>
+    <node pkg = "mapper_cu" type = "mapper_cu" name = "mapper_cu" args=""/>
+    <node pkg = "irobot_create_cu" type = "irobot_create_cu" name = "create" args="">
+        <param name="prairiedog/using_tf" value="true"/>
+    </node>
