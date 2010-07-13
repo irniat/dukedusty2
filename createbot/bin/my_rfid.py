@@ -14,6 +14,5 @@ import rospy
 #rfid_client.stop()
 
 from hrl_rfid.ros_M5e import *
-ros_rfid = ROS_M5e( name = 'Chris_RFID', readPwr=3000, portStr='/dev/robot/rfidreader', antFuncs=[EleRightEar], callbacks = [] )
-ros_rfid.query_mode()
+ros_rfid = ROS_M5e( name = 'Chris_RFID', readPwr=3000, portStr='/dev/robot/rfidreader', antFuncs=[EleLeftEar, EleRightEar], callbacks = [] )
 rospy.spin()

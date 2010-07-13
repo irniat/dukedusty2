@@ -9,10 +9,15 @@ using namespace std;
 /*string antenna_name
 string tagID
 int32 rssi*/
+
+bool stillInitializing = true;
+
 void RFIDCallback(const boost::shared_ptr<const RFIDread>& read) {
     //ROS_INFO("%s: %s: RSSI = %i", (read->antenna_name).data(), (read->tagID).data(), read->rssi);
     //ROS_INFO("%s (%i)", read->tagID.c_str(), read->rssi);
-    cout << read->tagID << "  " << read->tagID.size() << endl;
+    ROS_INFO("%s: RSSI = %i", read->antenna_name.c_str(), read->rssi);
+    
+    stillInitializing = false;
 }
 
 int main(int argc, char** argv) {
@@ -25,9 +30,10 @@ int main(int argc, char** argv) {
     ros::ServiceClient queryClient = n.serviceClient<StringArray_None>("/rfid/Chris_RFID_mode");
     StringArray_None modeReq;
     modeReq.request.data.push_back("query");
-    queryClient.call(modeReq);
 
     while(n.ok()){
+        if (stillInitializing)
+            queryClient.call(modeReq);
         ros::spinOnce();
         loop_rate.sleep();
     }
