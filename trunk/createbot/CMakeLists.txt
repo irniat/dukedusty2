@@ -34,6 +34,7 @@ rosbuild_add_executable(hallwaydrive src/hallwaydrive.cpp)
 rosbuild_add_executable(turn src/turn.cpp)
 rosbuild_add_executable(controlAndOdometer src/controlAndOdometer.cpp)
 rosbuild_add_executable(printRFIDTags src/printRFIDTags.cpp)
+rosbuild_add_executable(RFIDServo src/RFIDServo.cpp)
 
 #rosbuild_add_executable(tf_interp_test src/tf_interp_test.cpp)
 #rosbuild_add_executable(tf_listener src/tf_listener.cpp)
