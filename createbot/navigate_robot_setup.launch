@@ -5,18 +5,14 @@
         <param name="min_ang_degrees" value="-90"/>
         <param name="frame_id" value="base_scan"/>
     </node>
-    <!--The laser is about 10 cm in front of the center of the robot!-->
-    <node pkg="tf" type="static_transform_publisher" name="hokuyo_static_tf_publisher"
-        args="0.1 0 0 0 0 0 1 base_link base_scan 200"/>
-
-    <!--
-    <param name="irobot_create_rustic/serial_port" value="/dev/robot/roomba"/>
-    <node pkg="irobot_create_rustic" type="driver" output="screen" name="base_link">
-        <param name="freq" value="10"/>
-    </node>
     
-    <node pkg="irobot_create_rustic" type="controller_gui" name="roomba_manual_override_controller"/>
-    !-->
+    <!--Here are all of the static transforms to describe where things are in relation to the center of the IRobot Create!-->
+    <node pkg="tf" type="static_transform_publisher" name="hokuyo_static_tf_publisher"
+        args="0.14 0 0 0 0 0 1 base_link base_scan 200"/>
+        
+    <node pkg="tf" type="static_transform_publisher" name="rightRFID_static_tf_publisher" args="0.0371 -0.0902 0 0 0 -0.3827 0.9239 base_link rightRFID 200"/>
+    
+    <node pkg="tf" type="static_transform_publisher" name="leftRFID_static_tf_publisher" args="0.0371 0.0902 0 0 0 0.3827 0.9239 base_link leftRFID 200"/>
 
     <param name="/brown/irobot_create_2_1/port" value="/dev/robot/roomba"/>
     <node pkg="irobot_create_2_1" type="driver.py" name="base_link" output="screen"/>
