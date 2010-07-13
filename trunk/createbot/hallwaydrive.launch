@@ -1,8 +1,8 @@
 <launch>
     <node pkg="hokuyo_node" type="hokuyo_node" name="scan">
         <param name="port" value="/dev/robot/laser"/>
-        <param name="max_ang_degrees" value="80"/>
-        <param name="min_ang_degrees" value="-80"/>
+        <param name="max_ang_degrees" value="90"/>
+        <param name="min_ang_degrees" value="-90"/>
         <param name="frame_id" value="base_scan"/>
     </node>
     <!--The laser is about 10 cm in front of the center of the robot!-->

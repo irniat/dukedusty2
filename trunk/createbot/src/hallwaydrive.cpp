@@ -124,6 +124,7 @@ void OccupancyGrid::fill(const boost::shared_ptr<const LaserScan>& scan) {
         double MIN_ANGLE = scan->angle_min;
         double inc = scan->angle_increment;
         int bins = (int)((MAX_ANGLE - MIN_ANGLE) / inc);
+        
         for (int x = 0; x < oarrwidth; x++) {
                 double dx = increment * (double)(x - oarrwidth / 2);
                 for (int y = 0; y < oarrheight; y++) {
