@@ -21,6 +21,7 @@
   <depend package="sensor_msgs"/>
   <depend package="amcl"/>
   <depend package="move_base"/>
+  <depend package="map_server"/>
   
 </package>
 
