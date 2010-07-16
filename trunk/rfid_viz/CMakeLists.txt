@@ -29,4 +29,4 @@ rosbuild_gensrv()
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_executable(RFIDTest src/RFIDTest.cpp)
+rosbuild_add_executable(HeatmapBuilder src/HeatmapBuilder.cpp)
