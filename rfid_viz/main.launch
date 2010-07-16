@@ -1,0 +1,15 @@
+<launch>
+  <!-- Run the RFID node -->
+  <node pkg="createbot" name="rfidReaderNode" type="my_rfid.py" output="screen" respawn="true"/>
+    
+  <!-- Run the map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find createbot)/map.yaml"/>
+
+  <!--- Run AMCL -->
+  <include file="$(find amcl)/examples/amcl_omni.launch" />
+
+    <node pkg="tf" type="static_transform_publisher" name="rightRFID_static_tf_publisher" args="0.0371 -0.0902 0 0 0 -0.3827 0.9239 base_link EleRightEar 200"/>
+    
+    <node pkg="tf" type="static_transform_publisher" name="leftRFID_static_tf_publisher" args="0.0371 0.0902 0 0 0 0.3827 0.9239 base_link EleLeftEar 200"/>
+    
+</launch>
