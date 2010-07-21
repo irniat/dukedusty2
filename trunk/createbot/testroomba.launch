@@ -1,7 +1,0 @@
-<launch>
-    <node pkg="irobot_create_2_1" type="driver.py" name="roomba">
-        <param name="port" value="/dev/robot/roomba"/>
-    </node>
-    <node pkg="createbot" type="odom_broadcaster" name="odom_broadcaster">
-    </node>
-</launch>
