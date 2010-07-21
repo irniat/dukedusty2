@@ -12,6 +12,9 @@
 #include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/ChannelFloat32.h>
 #include <map>
+#include <wx/wx.h>
+#include <wx/menu.h>
+
 
 using namespace hrl_rfid;
 using namespace std;
@@ -121,19 +124,6 @@ void updateSelectedPointCloud() {
     selectedPointCloud.points.clear();
     selectedPointCloud.channels[0].values.clear();
     map<string, bool>::iterator iter = heatmapSelected.begin();
-    
-    /*
-    //Precompute the size of the heatmap based on which tags are selected
-    size_t finalSize = 0;
-    while (iter != heatmapSelected.end()) {
-        string hexID = iter->first;
-        if (heatmapSelected[hexID])
-            finalSize += heatmaps[hexID].points.size();
-        iter++;
-    }
-    //Allocate space for the merged point cloud
-    ret.points = vector<Point32>(finalSize);
-    ret.channels[0].values = vector<float>(finalSize);*/
 
     //Now copy all of the points into the new PointCloud
     iter = heatmapSelected.begin();
@@ -141,75 +131,72 @@ void updateSelectedPointCloud() {
     std::back_insert_iterator<vector<float> > cbackInsert(selectedPointCloud.channels[0].values);
     while (iter != heatmapSelected.end()) {
         string hexID = iter->first;
+        ROS_INFO("Copying cloud of size %i", heatmaps[hexID].points.size());
         copy(heatmaps[hexID].points.begin(), heatmaps[hexID].points.end(), pbackInsert);
         copy(heatmaps[hexID].channels[0].values.begin(), 
              heatmaps[hexID].channels[0].values.end(), cbackInsert);
         iter++;
     }
-    ROS_INFO("%i", selectedPointCloud.points.size());
+    //ROS_INFO("Point cloud size: %i", selectedPointCloud.points.size());
 }
 
 //The callback function for every time a tag is seen
 void RFIDCallback(const boost::shared_ptr<const RFIDread>& read) {
+    if (read->rssi == -1)
+        return;
     /*string antenna_name
     string tagID
     int32 rssi*/
     tf::TransformListener listener;
     tf::StampedTransform transform;
+    const char* antennaFrame = (read->antenna_name).c_str();
+    //listener.waitForTransform("/map", antennaFrame, ros::Time(), ros::Duration(1.0));
     try {
         ros::Time now = ros::Time::now();
-        //listener.lookupTransform("/map", (read->antenna_name).c_str(), now, transform);
-        listener.lookupTransform("/map", "/base_link", ros::Time(0), transform);
+        listener.lookupTransform("/map", antennaFrame, now, transform);
+        ROS_INFO("%.3f %.3f %.3f", transform.getOrigin().x(),transform.getOrigin().y(), transform.getOrigin().z());
     }
     catch (tf::TransformException ex) {
         ROS_ERROR("%s", ex.what());
+        return;
     }
     string hexID = getHexString(read->tagID);
     addRead(hexID, read->rssi, transform);
     stillInitializingRFID = false;
 }
 
-int main(int argc, char** argv) {
-    //TODO: Make the TF frame IDs into ROS parameters
-    ros::init(argc, argv, "HeatmapBuilder");
-    ros::NodeHandle n;
-    string RFIDTopicName, heatmapOut;
 
-    RFIDTopicName = "/rfid/Chris_RFID";
+class HeatmapList : public wxFrame {
+public:
+    wxListBox* listBox;
+    wxButton* refreshButton;
     
-    /*if (argc > 4) {
-        RFIDTopicName = "/rfid/" + string(argv[1]);
-    }
-    else {
-        ROS_ERROR("Params needed: <RFID Topic Name> <Bag File>");
-    }*/
+    void onRefresh(wxCommandEvent& event) {
     
-    ros::Subscriber rfidSub = n.subscribe(string(RFIDTopicName + "_reader").c_str(), 100, RFIDCallback);
-    ros::Rate loop_rate(5);
-    
-    ros::ServiceClient queryClient = n.serviceClient<StringArray_None>(string(RFIDTopicName + "_mode").c_str());
-    StringArray_None modeReq;
-    modeReq.request.data.push_back("query");
-
-    ros::Publisher heatmapPublisher = n.advertise<PointCloud>("RFIDHeatmapPoints", 50);
-    ros::Publisher heatmapPosesPublisher = n.advertise<PoseArray>("RFIDHeatmapPoses", 50);
-
-    int counter = 0;
-
-    while(n.ok()){
-        if (stillInitializingRFID)
-            queryClient.call(modeReq);
-        
-        if (counter > 25) {
-            counter = 0;
-            updateSelectedPointCloud();
-            heatmapPublisher.publish(selectedPointCloud);
-        }
-        
-        ros::spinOnce();    
-        loop_rate.sleep();
-        counter++;
     }
 
-    return 0;
-}
+    HeatmapList::HeatmapList(const wxString& title) : 
+        wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(400, 200)) {
+        wxPanel* panel = new wxPanel(this, -1);
+        
+        wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
+        listBox = new wxListBox(panel, ID_LISTBOX, wxPoint(-1, -1), wxSize(-1, -1));
+        vbox->Add(listBox, 3, wxEXPAND | wxALL, 20);
+        panel->SetSizer(vbox);
+        
+        //wxScrolledWindows* sw = new wxScrolledWindow(this);
+        
+    
+    }
+};
+
+class HeatmapBuilder : public wxApp {
+public:
+    virtual bool OnInit() {
+        return true;
+    }
+};
+
+IMPLEMENT_APP(HeatmapBuilder)
+
+
