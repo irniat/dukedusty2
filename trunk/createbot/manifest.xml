@@ -22,6 +22,8 @@
   <depend package="amcl"/>
   <depend package="move_base"/>
   <depend package="map_server"/>
+  <depend package="image_transport"/>
+  <depend package="cv_bridge"/>
   
 </package>
 

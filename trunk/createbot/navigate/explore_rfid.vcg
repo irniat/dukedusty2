@@ -1,0 +1,46 @@
+Background\ ColorR=0
+Background\ ColorG=0
+Background\ ColorB=0
+Fixed\ Frame=/map
+Target\ Frame=/base_link
+Grid.Alpha=0.5
+Grid.Cell\ Size=0.5
+Grid.ColorR=0.5
+Grid.ColorG=0.5
+Grid.ColorB=0.5
+Grid.Enabled=1
+Grid.Line\ Style=0
+Grid.Line\ Width=0.03
+Grid.Normal\ Cell\ Count=0
+Grid.OffsetX=0
+Grid.OffsetY=0
+Grid.OffsetZ=0
+Grid.Plane=0
+Grid.Plane\ Cell\ Count=100
+Grid.Reference\ Frame=/map
+Particle\ Cloud.ColorR=1
+Particle\ Cloud.ColorG=0
+Particle\ Cloud.ColorB=1
+Particle\ Cloud.Enabled=1
+Particle\ Cloud.Topic=/particlecloud
+Static\ Map.Alpha=0.7
+Static\ Map.Draw\ Behind=0
+Static\ Map.Enabled=1
+Static\ Map.Topic=/map
+Tool\ 2D\ Nav\ GoalTopic=move_base_simple/goal
+Tool\ 2D\ Pose\ EstimateTopic=initialpose
+Camera\ Type=rviz::FixedOrientationOrthoViewController
+Camera\ Config=102.523 0 30 0 -0.464017 0.533561 0.533561 0.464017
+Property\ Grid\ State=selection=Target Frame;expanded=.Global Options,Static Map.Enabled,Grid.Enabled,Particle Cloud.Enabled;scrollpos=0,0;splitterpos=176,337;ispageselected=1
+[Display0]
+Name=Static Map
+Package=rviz
+ClassName=rviz::MapDisplay
+[Display1]
+Name=Grid
+Package=rviz
+ClassName=rviz::GridDisplay
+[Display2]
+Name=Particle Cloud
+Package=rviz
+ClassName=rviz::PoseArrayDisplay

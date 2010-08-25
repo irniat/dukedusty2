@@ -7,10 +7,25 @@
 using namespace hrl_rfid;
 using namespace std;
 
+typedef unsigned char u8;
+
 bool stillInitializing = true;
 int leftEarStrength, rightEarStrength;
 
+string getHexString(string hex) {
+    string hexConv = "0123456789ABCDEF";
+    string ret;
+    for (size_t i = 0; i < hex.size(); i++) {
+        u8 hi, lo;
+        lo = ((u8)hex[i]) & 0x0F;
+        hi = (((u8)hex[i]) & 0xF0) >> 4;
+        ret += hexConv.substr(hi, 1) + hexConv.substr(lo, 1);
+    }
+    return ret;
+}
+
 void RFIDCallback(const boost::shared_ptr<const RFIDread>& read) {
+    ROS_INFO("%s ", getHexString(read->tagID).c_str());
     if (read->antenna_name.compare("EleLeftEar") == 0)
         leftEarStrength = read->rssi;
     else

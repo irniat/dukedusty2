@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="createbot" name="rfidReaderNode" type="my_rfid.py" output="screen" respawn="true"/>
+    <node pkg="createbot" name="RFIDServo" type="RFIDServo" output="screen"/>
+
+    <param name="/brown/irobot_create_2_1/port" value="/dev/robot/roomba"/>
+    <node pkg="irobot_create_2_1" type="driver.py" name="base_link" output="screen"/>
+
+</launch>
