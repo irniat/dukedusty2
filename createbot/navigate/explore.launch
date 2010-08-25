@@ -1,0 +1,12 @@
+<launch>
+  <master auto="start"/>
+
+<!--
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find createbot)/navigate/map.yaml"/>
+  <include file="$(find amcl)/examples/amcl_omni.launch" />
+!-->
+
+  <node name="Explore" pkg="createbot" type="ObstacleAvoid" output="screen" />
+
+
+</launch>

@@ -1,0 +1,23 @@
+<launch>
+    <node pkg="hokuyo_node" type="hokuyo_node" name="scan">
+        <param name="port" value="/dev/robot/laser"/>
+        <param name="max_ang_degrees" value="90"/>
+        <param name="min_ang_degrees" value="-90"/>
+        <param name="frame_id" value="base_scan"/>
+    </node>
+    <node pkg="tf" type="static_transform_publisher" name="hokuyo_static_tf_publisher"
+        args="0.14 0 0.06 0 0 0 1 base_link base_scan 50"/>
+        
+    <node pkg="tf" type="static_transform_publisher" name="webcam_static_tf_publisher"
+        args="0.205 -0.035 0 0 0 0 1 base_link head_camera 50"/>
+
+    <param name="/brown/irobot_create_2_1/port" value="/dev/robot/roomba"/>
+    <node pkg="irobot_create_2_1" type="driver.py" name="base_link" output="screen"/>
+
+    <node name="Explore" pkg="createbot" type="ObstacleAvoid" output="screen" />
+    
+    <node pkg="usb_cam" name="usb_cam" type="usb_cam_node">
+        <param name = "video_device" value="/dev/robot/camera"/>
+    </node>
+    
+</launch>
