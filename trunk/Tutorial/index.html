@@ -74,20 +74,46 @@ One thing to note is that running <a href = "http://www.ros.org/wiki/rviz">RVIZ<
 <p>
 The first step is to install the ROS base system onto Ubuntu 10.04 following <a href = "http://www.ros.org/wiki/cturtle/Installation/Ubuntu">these instructions</a>.  I used the <b>ros-cturtle-pr2all</b> option.  Then there are two additional third-party packages that need to be installed:<BR>
 <ol>
-<li>The Brown <a href = "http://www.ros.org/wiki/irobot_create_2_1">irobot_create_2_1</a> ROS package built over the <a href = "http://www.irobot.com/filelibrary/create/Create%20Open%20Interface_v2.pdf">iRobot Create Open Interface</a>.  This package has a node that serves as a communication driver for the roomba.  It subscribes to the <b>cmd_vel</b> topic which is of type <a href = "http://www.ros.org/doc/api/geometry_msgs/html/msg/Twist.html">Twist</a>. 
+<li>The Brown <a href = "http://www.ros.org/wiki/irobot_create_2_1">irobot_create_2_1</a> ROS package built over the <a href = "http://www.irobot.com/filelibrary/create/Create%20Open%20Interface_v2.pdf">iRobot Create Open Interface</a>.  This package has a node that serves as a communication driver for the Roomba.  It subscribes to the <b>cmd_vel</b> topic which is of type <a href = "http://www.ros.org/doc/api/geometry_msgs/html/msg/Twist.html">Twist</a>.  This means that it can directly actuate drive commands sent from the navigation stack that are specified in meters/sec and radians/sec.  Visit <a href = "http://www.ros.org/wiki/navigation/Tutorials/RobotSetup#Base_Controller_.28base_controller.29">this link</a> for more information on the drive commands sent from the navstack.<BR>
+Another nice feature of this package is that it keeps track of odometry information and publishes the TF transform from <b>odom</b> to <b>base_link</b> automatically, so I didn't have to write my own node to keep track of odometry<BR><BR>
+<b>NOTE:</b>There is another nice package called <a href = "http://www.ros.org/browse/details.php?name=irobot_create_rustic">irobot_create_rustic</a> that could be used, but it doesn't automatically subscribe to cmd_vel and its drive commands aren't consistent with the way <b>Twist</b> is defined in meters/sec and radians/sec.  I couldn't find a mapping from this driver's drive command units to what the navstack was expecting, which made it impossible for the robot to navigate.  But this driver still does have odometry information so it could be useful for other purposes outside of navigation, especially since it comes with a nice teleoperation GUI made with wxWidgets.<BR><BR></li>
+<li>The <a href = "http://www.ros.org/wiki/hrl_rfid">hrl_rfid</a> library from Georgia Tech's Healthcare Robotics Lab.  This package has a driver node that allows me to communicate with the Mercury(r) 5e RFID reader and to query the environment with two antennas at once.  
 
+</li>
 </ol>
 
 </p>
 
-Talk about choosing irobot_create_2_1 package and Travis's RFID library.  Then point towards my software repositories
+<p>
+The next step is to download and compile my packages, which are found in the following googlecode repository: <a href = "http://code.google.com/p/dukedusty2/">http://code.google.com/p/dukedusty2/</a>.  Map-building and navigation are done in the <i>createbot</i> package.
+
+</p>
 
 <BR><BR>
 
 <hr>
 <h2><b><a name = "SLAM">Performing and Visualing Online SLAM (with video)</a></b></h2><BR>
+Follow these steps to do online SLAM:<BR>
+<ol>
+<li>
+I created a launch file in <i>createbot/map_building</i> called <a href = "build_map.launch">build_map.launch</a> that needs to be configured and launched first.  Configure it for your needs by tweaking the parameters which are explained <a href = "http://www.ros.org/wiki/gmapping">here</a> on the ROS web site.  Then launch that file (<i>roslaunch build_map.launch</i>).  It will wait for laser scans and tf transforms from odom to base_link (the odometry estimates) and then it will begin to construct a map.<BR><BR>
+</li>
 
+<li>Now launch my second launch file, createbot/map_buliding/<a href = "explore.launch">explore.launch</a> (<i>roslaunch explore.launch</i>), which subscribes to the laser scanner using the <a href = "http://www.ros.org/wiki/hokuyo_node">hokuyo_node</a>, subscribes to the roomba using the <a href = "http://www.ros.org/wiki/irobot_create_2_1">irobot_create_2_1</a> driver, and subscribes to the camera using the <a href = "http://www.ros.org/wiki/usb_cam">usb_cam</a> node.  Note that I also specify the static TF transforms for the camera and the laser here (no RFID is necessary for map building).<BR>
+I also launch a program that I wrote called "ObstacleAvoid" implemented in <i>createbot/src/<a href = "ObstacleAvoid.cpp">ObstacleAvoid.cpp</a></i>.  This program basically mimics the roomba's original functionality of exploring open space while trying to avoid obstacles.  It is possible to override the automatic drive commands by executing another program I made in <i>createbot/navigate/manualdrive</i>, which accepts basic teleoperation commands.  Press the space bar and ENTER to toggle between manual and automatic drive mode once this program is launched.  Use WASD controls (plus ENTER) to make the robot go forward, left, backward, and right.  This way, the user can let the robot go automatically for a while exploring open space, but then redirect it manually to a new area.  Manual teleoperation is also obviously useful for helping the robot to avoid obstacles that the laser scanner cannot see<BR><BR>
+</li>
 
+<li>Once <b>build_map.launch</b> and <b>explore.launch</b> have been launched in that order, it's time to use RVIZ to visualize what's happening.  Type <b>rosrun rviz rviz</b>, and open the RVIZ configuration file <i>createbot/map_building/<a href = "slam_rviz.vcg">slam_rviz.vcg</a></i>.  I set it up so that laser scans are overlayed on top of the map
+
+</li>
+
+</ol>
+Here's a video of this process in action:<BR><BR>
+<object width="480" height="385"><param name="movie" value="http://www.youtube.com/v/4ROuJ7vskt8?fs=1&amp;hl=en_US&amp;color1=0x006699&amp;color2=0x54abd6"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/4ROuJ7vskt8?fs=1&amp;hl=en_US&amp;color1=0x006699&amp;color2=0x54abd6" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object><BR>
+(<a href = "slam.mpeg">Click here</a> for the original video file)
+
+<BR><BR>
+On the left there is a panel displaying real-time input from the camera.  On the right, the map-building in progress is visible with the laser scans being drawn in white on top for reference.
 
 <BR><BR>
 
