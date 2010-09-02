@@ -1,0 +1,41 @@
+<launch>
+    <node pkg="hokuyo_node" type="hokuyo_node" name="scan">
+        <param name="port" value="/dev/robot/laser"/>
+        <param name="max_ang_degrees" value="90"/>
+        <param name="min_ang_degrees" value="-90"/>
+        <param name="frame_id" value="base_scan"/>
+    </node>
+    
+    <node pkg="createbot" name="rfidReaderNode" type="my_rfid.py" output="screen" respawn="true"/>
+    <node pkg="createbot" name="setRFIDQuery" type="setRFIDQuery" output="screen" respawn="false"/>
+    
+    <param name="/brown/irobot_create_2_1/port" value="/dev/robot/roomba"/>
+    <node pkg="irobot_create_2_1" type="driver.py" name="base_link" output="screen"/>
+    
+    <!--
+    <node pkg="usb_cam" name="usb_cam" type="usb_cam_node">
+        <param name = "video_device" value="/dev/robot/camera"/>
+    </node>
+    
+    <node pkg="topic_tools" name="usb_cam_republisher" type="drop" args="/usb_cam 1 8 /image_resampled"/>
+    !-->
+    
+    <!--Here are all of the static transforms to describe where things are in relation to the center of the IRobot Create!-->
+    <node pkg="tf" type="static_transform_publisher" name="temp" args="0 0 0 0 0 0 1 map base_link 50"/>
+    
+    <!--Base platform is 13cm off of ground!-->
+    <node pkg="tf" type="static_transform_publisher" name="ground_static_tf_publisher" args="0 0 0.13 0 0 0 1 base_link base_platform 50"/>
+    
+    <node pkg="tf" type="static_transform_publisher" name="hokuyo_static_tf_publisher"
+        args="0.14 0 0.06 0 0 0 1 base_platform base_scan 50"/>
+        
+    <node pkg="tf" type="static_transform_publisher" name="webcam_static_tf_publisher"
+        args="0.205 -0.035 0 0 0 0 1 base_platform head_camera 50"/>
+        
+    <node pkg="tf" type="static_transform_publisher" name="rightRFID_static_tf_publisher" args="0.0371 -0.0902 0.164 0 0 -0.3827 0.9239 base_platform EleRightEar 50"/>
+    
+    <node pkg="tf" type="static_transform_publisher" name="leftRFID_static_tf_publisher" args="0.0371 0.0902 0.164 0 0 0.3827 0.9239 base_platform EleLeftEar 50"/>
+
+
+    
+</launch>
