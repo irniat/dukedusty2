@@ -1,0 +1,110 @@
+<html>
+<body>
+<center><h1><b>SLAM and Global Navigation on the iRobot Roomba using ROS</b></h1></center>
+<a href = "../../">Chris Tralie</a><BR><BR>
+25 August 2010
+
+<hr>
+This is an incremental tutorial to <a href = "http://www.ai.sri.com/~gerkey">Brian Gerkey's</a> tutorial a few years ago called <a href = "http://www.ai.sri.com/~gerkey/roomba/index.html?sess=235412ffdc02b680ed3a9b63a77dc4b2">Mapping with the iRobot Roomba</a>, which explained how to do offline map-building using the <a href = "http://playerstage.sourceforge.net/">Player</a> development environment on a Gumstix board.  Our group at Duke used the <a href = "http://www.ros.org/wiki/">ROS Robot Operating System</a> running on an EEEPC Netbook to do SLAM and Global Navigation.  This page will explain how to get these up and running on our environment and will give some videos / results.<BR><BR>
+<BR><b>Note</b>: The robot platform is also set up with two RFID antennas, which I will mention for completeness, but no RFID techology is required for the map building and navigation capabilities presented in this tutorial.<BR><BR>
+
+Contents:
+<ul>
+<li><a href = "#components">Components</a></li>
+<li><a href = "#assembly">Robot Assembly and TF</a></li>
+<li><a href = "#teleoperation">Robot Teleoperation Using VNC</a></li>
+<li><a href = "#packages">Downloading and Installing ROS Packages</a></li>
+<li><a href = "#SLAM">Performing and Visualizing Online SLAM (with video)</a></li>
+<li><a href = "#offlinemap">Building A More Accurate Map Offline (with results)</a></li>
+<li><a href = "#navigation">Global Navigation (with video)</a></li>
+</ul>
+
+<hr>
+<h2><b><a name = "components">Components</a></b></h2><BR>
+
+<ul>
+<li>An IRobot Create(r) robot</li>
+<li>An Asus EeePC running Ubuntu Linux 10.04 Desktop Edition</li>
+<li>A <a href = "http://www.acroname.com/robotics/parts/R325-URG-04LX-UG01.html">Hokuyo URG-05LX-UG01</a> urglaser powered and read through the USB port</li>
+<li>A standard Logitech USB Webcam</li>
+<li>A <a href = "http://www.thingmagic.com/embedded-rfid-readers/mercury5e">ThingMagic Mercury(r) 5e RFID Reader</a></li>
+<li>Two RFID Antennas</li>
+<li>A single 4-port USB hub</li>
+</ul>
+
+
+<BR>
+The 4 USB devices (the IRobot Create, the USB webcam, the Hokuyo urglaser, and the RFID reader) were all connected to the USB hub, which was plugged into a single port on the netbook.  It was convenient to use <a href = "http://reactivated.net/writing_udev_rules.html">udev</a> to link the USB device aliases to constant names.  This way, the aliases wouldn't be switched every time the devices got unplugged, and it was easier to make ROS launch files without having to change the port IDs for the different hardware devices.  <a href = "10-ROBOT.rules">Click here</a> to view the udev file that I made for the devices.
+
+<hr>
+<h2><b><a name = "assembly">Robot Assembly and TF</a></b></h2><BR>
+
+<img src = "lowres_dukedusty2.png"><BR>
+<b>[High res pictures needed]</b>
+<BR><BR>
+
+I used ROS's built-in <a href = "http://www.ros.org/wiki/tf">TF Transformation system</a> to specify the orientation of all components with respect to the robot base (which are static on this platform).  The position and orientation of the components are as follows:<BR>
+<ul>
+<li>A 1 square foot plastic platform is mounted on the create 13cm above the ground in a diamond formation (with corners at the front and back of the IRobot Create)</li>
+<li>The Hokuyo laser is centered 14cm in front of the center of the platform facing forward</li>
+<li>The USB camera is positioned 20.5cm in front of the center of the platform and 3.5cm to the left of center facing forward.</li>
+<li>The two RFID readers are placed symmetrically to the left and right of center, each facing 45 degrees away from center</li>
+</ul><BR>
+<img src = "assembly_diagram.png"><BR>
+It is important to specify these transformations as accurately as possible so the map-builder can rectify the offset from the center of odometry.  The static transformations described are specified at the bottom of <a href = "navigate_robot_setup.launch">this configuration file</a> (note that the rotations had to be specified as quaternions).  <a href = "http://www.ros.org/wiki/tf#static_transform_publisher">Click here</a> to see the format for specifying static TF transformations.
+
+</ul>
+
+<BR><BR>
+<a href = "TF_Frames.pdf">Click here</a> to see the TF transformation tree printed from ROS during runtime.
+
+<hr>
+<h2><b><a name = "teleoperation">Robot Teleoperation Using VNC</a></b></h2><BR>
+I communicated with the robot through Duke's wireless network primarily using remote desktop.  I used both Ubuntu's built-in remote desktop server and <a href = "http://www.tightvnc.com/">TightVNC</a> to clone additional GNOME desktops.  There was some lag but it was still possible to program and set off launch files.<BR><BR>
+One thing to note is that running <a href = "http://www.ros.org/wiki/rviz">RVIZ</a>, an important visualization program that's used both for map building and navigation, requires GL extensions.  This means that it can't be run through one of the :1, :2, :3, etc. TightVNC virtual desktops; it has to be run on the actual desktop that is being displayed on the screen (Ubuntu's primary remote desktop server).
+
+<BR><BR>
+<b>[Screenshot?]</b>
+
+<BR><BR>
+
+<hr>
+<h2><b><a name = "packages">Downloading and Installing ROS Packages</a></b></h2><BR>
+
+<p>
+The first step is to install the ROS base system onto Ubuntu 10.04 following <a href = "http://www.ros.org/wiki/cturtle/Installation/Ubuntu">these instructions</a>.  I used the <b>ros-cturtle-pr2all</b> option.  Then there are two additional third-party packages that need to be installed:<BR>
+<ol>
+<li>The Brown <a href = "http://www.ros.org/wiki/irobot_create_2_1">irobot_create_2_1</a> ROS package built over the <a href = "http://www.irobot.com/filelibrary/create/Create%20Open%20Interface_v2.pdf">iRobot Create Open Interface</a>.  This package has a node that serves as a communication driver for the roomba.  It subscribes to the <b>cmd_vel</b> topic which is of type <a href = "http://www.ros.org/doc/api/geometry_msgs/html/msg/Twist.html">Twist</a>. 
+
+</ol>
+
+</p>
+
+Talk about choosing irobot_create_2_1 package and Travis's RFID library.  Then point towards my software repositories
+
+<BR><BR>
+
+<hr>
+<h2><b><a name = "SLAM">Performing and Visualing Online SLAM (with video)</a></b></h2><BR>
+
+
+
+<BR><BR>
+
+<hr>
+<h2><b><a name = "offlinemap">Building A More Accurate Map Offline (with results)</a></b></h2><BR>
+
+
+
+<BR><BR>
+
+<hr>
+<h2><b><a name = "navigation">Global Navigation (with video)</a></b></h2><BR>
+
+
+
+<BR><BR>
+
+
+</body>
+</html>
